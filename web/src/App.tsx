@@ -1,4 +1,4 @@
-import Independent from "./Chat.tsx";
+import Independent from "./chat/Chat.tsx";
 
 
 const App = () => (

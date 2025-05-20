@@ -1,0 +1,2 @@
+CREATE DATABASE IF NOT EXISTS chat_bot;
+USE chat_bot;

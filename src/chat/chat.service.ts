@@ -6,6 +6,7 @@ import { CreateChatItemDto } from "./dto/create-chat-item-dto";
 import { BaseResultData } from "../common/base/result";
 import { StreamService } from "../stream/stream.service";
 import { isQuestionOrExclamationToken } from "typescript";
+import { RagService } from "../rag/rag.service";
 
 @Injectable()
 export class ChatService {
@@ -13,6 +14,7 @@ export class ChatService {
     @InjectRepository(ChatItemEntity)
     private readonly chatItemEntityRepository: Repository<ChatItemEntity>,
     private readonly streamService: StreamService,
+    private readonly ragService: RagService,
   ) {}
 
   async getChatAnswer(body: CreateChatItemDto & { message: { content: string }; stream: boolean }) {
@@ -22,10 +24,10 @@ export class ChatService {
     const { message, stream, ...createChatItemDto } = body;
     const content = message.content;
 
-    const chunks = ["模拟回答", content];
+    const answer = await this.ragService.recursiveRetrieval(content);
+
+    const chunks = ["模拟回答", content, answer];
 
     return chunks;
   }
-
-  async getStreamAnswer(question: string, enable_web_search?: boolean, modelChoice?: any) {}
 }

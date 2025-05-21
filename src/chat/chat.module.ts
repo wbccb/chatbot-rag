@@ -4,8 +4,10 @@ import { ChatService } from "./chat.service";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ChatItemEntity } from "./entites/chat-item.entity";
 import { StreamModule } from "../stream/stream.module";
+import { RagModule } from "../rag/rag.module";
+
 @Module({
-  imports: [TypeOrmModule.forFeature([ChatItemEntity]), StreamModule],
+  imports: [TypeOrmModule.forFeature([ChatItemEntity]), StreamModule, RagModule],
   controllers: [ChatController],
   providers: [ChatService],
 })

@@ -16,20 +16,4 @@ export class StreamService {
     stream.push(null);
     return stream;
   }
-
-  // 从异步数据源生成流
-  async fromAsyncGenerator<T>(generator: AsyncGenerator<T>): Promise<Readable> {
-    const stream = new Readable({
-      read() {},
-    });
-    await (async () => {
-      for await (const chunk of generator) {
-        console.log("chunk", chunk);
-        stream.push(JSON.stringify({ content: chunk, is_end: false }) + "\n\n");
-      }
-      stream.push(JSON.stringify({ content: "", is_end: true }) + "\n\n");
-      stream.push(null);
-    })();
-    return stream;
-  }
 }

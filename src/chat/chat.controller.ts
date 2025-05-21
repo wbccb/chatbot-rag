@@ -11,7 +11,7 @@ export class ChatController {
   @Post("/chat")
   @ApiOperation({ summary: "用户聊天处理入口" })
   @ApiResponse({ status: 200, description: "创建成功" })
-  getChatAnswer(@Body() body: any, @Res() res: Response) {
+  getChatAnswer(@Body() body: CreateChatItemDto & { message: { content: string }; stream: boolean }, @Res() res: Response) {
     const { message, stream } = body;
 
     if (!stream) {
@@ -24,21 +24,12 @@ export class ChatController {
 
     // 模拟模型推理
     const content = message.content;
-    const reply = `Echo: ${content}`;
-
-    // 逐块发送数据
-    let index = 0;
-    const interval = setInterval(() => {
-      const chunk = reply.slice(index * 10, (index + 1) * 10);
-      if (index * 10 >= reply.length) {
-        clearInterval(interval);
-        res.write(`data: {"choices":[{"delta":{"reasoning_content":""}]}\n\n`);
-        res.end();
-        return;
+    this.chatService.getChatAnswer(body).then((chunks) => {
+      for (const chunk of chunks) {
+        res.write(`data: {"choices":[{"delta":{"reasoning_content":"${chunk}"}}]}\n\n`);
       }
 
-      res.write(`data: {"choices":[{"delta":{"reasoning_content":"${chunk}"}}]}\n\n`);
-      index++;
-    }, 200);
+      res.end();
+    });
   }
 }

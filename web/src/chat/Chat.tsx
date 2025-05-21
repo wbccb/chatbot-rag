@@ -1,71 +1,48 @@
-import {
-  AppstoreAddOutlined,
-  CloudUploadOutlined,
-  CopyOutlined,
-  DeleteOutlined,
-  DislikeOutlined,
-  EditOutlined,
-  FileSearchOutlined,
-  LikeOutlined,
-  PaperClipOutlined,
-  PlusOutlined,
-  ProductOutlined,
-  QuestionCircleOutlined,
-  ReloadOutlined,
-  ScheduleOutlined,
-} from '@ant-design/icons';
-import {
-  Attachments,
-  Bubble,
-  Conversations,
-  Prompts,
-  Sender,
-  useXAgent,
-  useXChat,
-} from '@ant-design/x';
-import type { BubbleDataType } from '@ant-design/x/es/bubble/BubbleList';
-import { Avatar, Button, Flex, type GetProp, Spin, message } from 'antd';
-import { createStyles } from 'antd-style';
-import dayjs from 'dayjs';
-import React, { useEffect, useRef, useState } from 'react';
+import { AppstoreAddOutlined, CloudUploadOutlined, CopyOutlined, DeleteOutlined, DislikeOutlined, EditOutlined, FileSearchOutlined, LikeOutlined, PaperClipOutlined, PlusOutlined, ProductOutlined, QuestionCircleOutlined, ReloadOutlined, ScheduleOutlined } from "@ant-design/icons";
+import { Attachments, Bubble, Conversations, Prompts, Sender, useXAgent, useXChat } from "@ant-design/x";
+import type { BubbleDataType } from "@ant-design/x/es/bubble/BubbleList";
+import { Avatar, Button, Flex, type GetProp, Spin, message } from "antd";
+import { createStyles } from "antd-style";
+import dayjs from "dayjs";
+import React, { useEffect, useRef, useState } from "react";
 
 const DEFAULT_CONVERSATIONS_ITEMS = [
   {
-    key: 'default-0',
-    label: 'What is Ant Design X?',
-    group: 'Today',
+    key: "default-0",
+    label: "What is Ant Design X?",
+    group: "Today",
   },
   {
-    key: 'default-1',
-    label: 'How to quickly install and import components?',
-    group: 'Today',
+    key: "default-1",
+    label: "How to quickly install and import components?",
+    group: "Today",
   },
   {
-    key: 'default-2',
-    label: 'New AGI Hybrid Interface',
-    group: 'Yesterday',
+    key: "default-2",
+    label: "New AGI Hybrid Interface",
+    group: "Yesterday",
   },
 ];
 
-const SENDER_PROMPTS: GetProp<typeof Prompts, 'items'> = [
+const SENDER_PROMPTS: GetProp<typeof Prompts, "items"> = [
   {
-    key: '1',
-    description: 'Upgrades',
+    key: "1",
+    description: "Upgrades",
     icon: <ScheduleOutlined />,
   },
   {
-    key: '2',
-    description: 'Components',
+    key: "2",
+    description: "Components",
     icon: <ProductOutlined />,
   },
   {
-    key: '3',
-    description: 'RICH Guide',
+    key: "3",
+    description: "RICH Guide",
     icon: <FileSearchOutlined />,
   },
   {
-    key: '4',
-    description: 'Installation Introduction',
+    key: "4",
+    description: "Installation Introduction",
     icon: <AppstoreAddOutlined />,
   },
 ];
@@ -141,10 +118,12 @@ const useStyle = createStyles(({ token, css }) => {
       .ant-prompts-label {
         color: #000000e0 !important;
       }
+
       .ant-prompts-desc {
         color: #000000a6 !important;
         width: 100%;
       }
+
       .ant-prompts-icon {
         color: #000000a6 !important;
       }
@@ -192,48 +171,46 @@ const Independent: React.FC = () => {
   const [curConversation, setCurConversation] = useState(DEFAULT_CONVERSATIONS_ITEMS[0].key);
 
   const [attachmentsOpen, setAttachmentsOpen] = useState(false);
-  const [attachedFiles, setAttachedFiles] = useState<GetProp<typeof Attachments, 'items'>>([]);
+  const [attachedFiles, setAttachedFiles] = useState<GetProp<typeof Attachments, "items">>([]);
 
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
 
   // ==================== Runtime ====================
   const [agent] = useXAgent<BubbleDataType>({
-    baseURL: 'https://api.siliconflow.cn/v1/chat/completions',
-    model: 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B',
-    dangerouslyApiKey: 'Bearer sk-ravoadhrquyrkvaqsgyeufqdgphwxfheifujmaoscudjgldr',
+    baseURL: "/chatbot-backend/chat",
+    model: "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+    dangerouslyApiKey: "Bearer sk-ravoadhrquyrkvaqsgyeufqdgphwxfheifujmaoscudjgldr",
   });
   const loading = agent.isRequesting();
 
   const { onRequest, messages, setMessages } = useXChat({
     agent,
     requestFallback: (_, { error }) => {
-      if (error.name === 'AbortError') {
+      if (error.name === "AbortError") {
         return {
-          content: 'Request is aborted',
-          role: 'assistant',
+          content: "Request is aborted",
+          role: "assistant",
         };
       }
       return {
-        content: 'Request failed, please try again!',
-        role: 'assistant',
+        content: "Request failed, please try again!",
+        role: "assistant",
       };
     },
     transformMessage: (info) => {
       const { originMessage, chunk } = info || {};
-      let currentText = '';
+      let currentText = "";
       try {
-        if (chunk?.data && !chunk?.data.includes('DONE')) {
+        if (chunk?.data && !chunk?.data.includes("DONE")) {
           const message = JSON.parse(chunk?.data);
-          currentText = !message?.choices?.[0].delta?.reasoning_content
-            ? ''
-            : message?.choices?.[0].delta?.reasoning_content;
+          currentText = !message?.choices?.[0].delta?.reasoning_content ? "" : message?.choices?.[0].delta?.reasoning_content;
         }
       } catch (error) {
         console.error(error);
       }
       return {
-        content: (originMessage?.content || '') + currentText,
-        role: 'assistant',
+        content: (originMessage?.content || "") + currentText,
+        role: "assistant",
       };
     },
     resolveAbortController: (controller) => {
@@ -246,13 +223,17 @@ const Independent: React.FC = () => {
     if (!val) return;
 
     if (loading) {
-      message.error('Request is in progress, please wait for the request to complete.');
+      message.error("Request is in progress, please wait for the request to complete.");
       return;
     }
 
     onRequest({
       stream: true,
-      message: { role: 'user', content: val },
+      message: { role: "user", content: val },
+      userId: "test",
+      conversionId: "1",
+      content: val,
+      type: "text",
     });
   };
 
@@ -261,13 +242,7 @@ const Independent: React.FC = () => {
     <div className={styles.sider}>
       {/* 🌟 Logo */}
       <div className={styles.logo}>
-        <img
-          src="https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*eco6RrQhxbMAAAAAAAAAAAAADgCCAQ/original"
-          draggable={false}
-          alt="logo"
-          width={24}
-          height={24}
-        />
+        <img src="https://mdn.alipayobjects.com/huamei_iwk9zp/afts/img/A*eco6RrQhxbMAAAAAAAAAAAAADgCCAQ/original" draggable={false} alt="logo" width={24} height={24} />
         <span>Ant Design X</span>
       </div>
 
@@ -279,7 +254,7 @@ const Independent: React.FC = () => {
             {
               key: now,
               label: `New Conversation ${conversations.length + 1}`,
-              group: 'Today',
+              group: "Today",
             },
             ...conversations,
           ]);
@@ -308,17 +283,17 @@ const Independent: React.FC = () => {
           }, 100);
         }}
         groupable
-        styles={{ item: { padding: '0 8px' } }}
+        styles={{ item: { padding: "0 8px" } }}
         menu={(conversation) => ({
           items: [
             {
-              label: 'Rename',
-              key: 'rename',
+              label: "Rename",
+              key: "rename",
               icon: <EditOutlined />,
             },
             {
-              label: 'Delete',
-              key: 'delete',
+              label: "Delete",
+              key: "delete",
               icon: <DeleteOutlined />,
               danger: true,
               onClick: () => {
@@ -353,16 +328,16 @@ const Independent: React.FC = () => {
           items={messages?.map((i) => ({
             ...i.message,
             classNames: {
-              content: i.status === 'loading' ? styles.loadingMessage : '',
+              content: i.status === "loading" ? styles.loadingMessage : "",
             },
-            typing: i.status === 'loading' ? { step: 5, interval: 20, suffix: <>💗</> } : false,
+            typing: i.status === "loading" ? { step: 5, interval: 20, suffix: <>💗</> } : false,
           }))}
-          style={{ height: '100%', paddingInline: "calc(calc(100% - 700px) /2)" }}
+          style={{ height: "100%", paddingInline: "calc(calc(100% - 700px) /2)" }}
           roles={{
             assistant: {
-              placement: 'start',
+              placement: "start",
               footer: (
-                <div style={{ display: 'flex' }}>
+                <div style={{ display: "flex" }}>
                   <Button type="text" size="small" icon={<ReloadOutlined />} />
                   <Button type="text" size="small" icon={<CopyOutlined />} />
                   <Button type="text" size="small" icon={<LikeOutlined />} />
@@ -371,31 +346,28 @@ const Independent: React.FC = () => {
               ),
               loadingRender: () => <Spin size="small" />,
             },
-            user: { placement: 'end' },
+            user: { placement: "end" },
           }}
         />
-      ) : (<div>无消息</div>)}
+      ) : (
+        <div>无消息</div>
+      )}
     </div>
   );
   const senderHeader = (
-    <Sender.Header
-      title="Upload File"
-      open={attachmentsOpen}
-      onOpenChange={setAttachmentsOpen}
-      styles={{ content: { padding: 0 } }}
-    >
+    <Sender.Header title="Upload File" open={attachmentsOpen} onOpenChange={setAttachmentsOpen} styles={{ content: { padding: 0 } }}>
       <Attachments
         beforeUpload={() => false}
         items={attachedFiles}
         onChange={(info) => setAttachedFiles(info.fileList)}
         placeholder={(type) =>
-          type === 'drop'
-            ? { title: 'Drop file here' }
+          type === "drop"
+            ? { title: "Drop file here" }
             : {
-              icon: <CloudUploadOutlined />,
-              title: 'Upload files',
-              description: 'Click or drag files to this area to upload',
-            }
+                icon: <CloudUploadOutlined />,
+                title: "Upload files",
+                description: "Click or drag files to this area to upload",
+              }
         }
       />
     </Sender.Header>
@@ -409,7 +381,7 @@ const Independent: React.FC = () => {
           onSubmit(info.data.description as string);
         }}
         styles={{
-          item: { padding: '6px 12px' }
+          item: { padding: "6px 12px" },
         }}
         className={styles.senderPrompt}
       />
@@ -419,19 +391,13 @@ const Independent: React.FC = () => {
         header={senderHeader}
         onSubmit={() => {
           onSubmit(inputValue);
-          setInputValue('');
+          setInputValue("");
         }}
         onChange={setInputValue}
         onCancel={() => {
           abortController.current?.abort();
         }}
-        prefix={
-          <Button
-            type="text"
-            icon={<PaperClipOutlined style={{ fontSize: 18 }} />}
-            onClick={() => setAttachmentsOpen(!attachmentsOpen)}
-          />
-        }
+        prefix={<Button type="text" icon={<PaperClipOutlined style={{ fontSize: 18 }} />} onClick={() => setAttachmentsOpen(!attachmentsOpen)} />}
         loading={loading}
         className={styles.sender}
         allowSpeech

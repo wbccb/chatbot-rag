@@ -19,7 +19,7 @@ export class ChatItemEntity extends BaseEntity {
     length: 20,
     comment: '该聊天信息所属的对话',
   })
-  public conversationId: string;
+  public conversionId: string;
 
   @Column({
     type: 'text',
